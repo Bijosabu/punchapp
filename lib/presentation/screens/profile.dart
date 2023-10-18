@@ -1,5 +1,9 @@
+import 'package:docmehr/application/blocs/userData/user_bloc.dart';
+import 'package:docmehr/application/blocs/userData/user_state.dart';
 import 'package:docmehr/application/blocs/userInfo/user_info_bloc.dart';
 import 'package:docmehr/core/constants.dart';
+import 'package:docmehr/domain/models/userModel.dart';
+import 'package:docmehr/sqflite_db/user_db.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:platform_device_id_v3/platform_device_id.dart';
@@ -12,21 +16,26 @@ class Profile extends StatelessWidget {
     super.key,
     required this.zoomDrawerController,
   });
+  // User? user;
+  // String? _deviceId;
+  // _getUser() async {
+  //   user = await UserDatabase.instance.readData(1);
+  // }
 
-  String? _deviceId;
-
-  _getDeviceId() async => _deviceId = await PlatformDeviceId.getDeviceId;
+  // _getDeviceId() async => _deviceId = await PlatformDeviceId.getDeviceId;
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await _getDeviceId();
-      // ignore: use_build_context_synchronously
-      BlocProvider.of<UserInfoBloc>(context).add(UserInfoEvent.getUserInfo(
-          userToken: '3884F0E5-FDAA-46CD-9ADD-82BEFCDCBA58',
-          deviceId: _deviceId!,
-          OTPNo: '12345'));
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    //   // await _getUser();
+    //   // print(user!.deptName);
+    //   // await _getDeviceId();
+    //   // // ignore: use_build_context_synchronously
+    //   // BlocProvider.of<UserInfoBloc>(context).add(UserInfoEvent.getUserInfo(
+    //   //     userToken: '3884F0E5-FDAA-46CD-9ADD-82BEFCDCBA58',
+    //   //     deviceId: _deviceId!,
+    //   //     OTPNo: '12345'));
+    // });
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
@@ -37,18 +46,13 @@ class Profile extends StatelessWidget {
             },
           ),
         ),
-        // drawer: const Drawer(),
         body: SafeArea(
           child: Center(
-            child: BlocBuilder<UserInfoBloc, UserInfoState>(
+            child: BlocBuilder<UserBloc, UserState>(
               builder: (context, state) {
-                if (state.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state.isError) {
-                  return const Center(
-                    child: Text('Unable to load Profile Data'),
-                  );
-                } else {
+                if (state is UserLoading) {
+                  return const CircularProgressIndicator();
+                } else if (state is UserLoaded) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,13 +70,11 @@ class Profile extends StatelessWidget {
                           ),
                           child: CircleAvatar(
                             radius: 80.0,
-                            backgroundImage: NetworkImage(state
-                                    .userInfo?.empImage ??
-                                'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
+                            backgroundImage: NetworkImage(state.user.empImage),
                           )),
                       kH10,
                       Text(
-                        state.userInfo?.empName ?? 'Name',
+                        state.user.empName,
                         style: const TextStyle(
                           color: Colors.blueAccent,
                           fontWeight: FontWeight.bold,
@@ -81,7 +83,7 @@ class Profile extends StatelessWidget {
                       ),
                       kH10,
                       Text(
-                        state.userInfo?.desigName ?? 'App Developer',
+                        state.user.desigName,
                         style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
@@ -109,28 +111,28 @@ class Profile extends StatelessWidget {
                             children: [
                               Details(
                                   title: 'Company details',
-                                  userdetail:
-                                      state.userInfo?.deptName ?? 'No data'),
+                                  userdetail: state.user.instName),
                               kH20,
                               Details(
                                   title: 'Department',
-                                  userdetail:
-                                      state.userInfo?.deptName ?? 'No data'),
+                                  userdetail: state.user.deptName),
                               kH20,
                               Details(
                                   title: 'Designation',
-                                  userdetail:
-                                      state.userInfo?.desigName ?? 'No data'),
+                                  userdetail: state.user.desigName),
                               kH20,
                               Details(
                                   title: 'Address',
-                                  userdetail:
-                                      state.userInfo?.instAddress ?? 'No data'),
+                                  userdetail: state.user.instAddress),
                             ],
                           ),
                         ),
                       )
                     ],
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Something went wrong'),
                   );
                 }
               },
@@ -155,29 +157,6 @@ class Details extends StatelessWidget {
         title: Text(title),
         subtitle: Text(userdetail),
       ),
-      // child: Column(
-      //   children: [
-      //     kH10,
-      //     Text(
-      //       title,
-      //       style: const TextStyle(
-      //         fontSize: 16,
-      //         fontWeight: FontWeight.w300,
-      //         color: Colors.black,
-      //       ),
-      //     ),
-      //     const SizedBox(
-      //       height: 5,
-      //     ),
-      //     Text(
-      //       userdetail,
-      //       style: TextStyle(
-      //         color: Colors.grey[600],
-      //         fontSize: 14,
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }

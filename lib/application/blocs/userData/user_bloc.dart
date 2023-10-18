@@ -16,6 +16,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(UserLoading());
     try {
       User? user = await UserDatabase.instance.readData(1);
+      assert(user != null);
       emit(UserLoaded(user: user!));
     } catch (e) {
       emit(UserError());

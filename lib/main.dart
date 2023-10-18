@@ -1,16 +1,22 @@
 import 'dart:io';
+import 'package:docmehr/application/blocs/punch/punch_bloc.dart';
 import 'package:docmehr/application/blocs/userInfo/user_info_bloc.dart';
+
 import 'package:docmehr/infrastructure/userInfoRepo.dart';
 import 'package:docmehr/presentation/screens/login.dart';
 import 'package:docmehr/presentation/screens/profile.dart';
+
 import 'package:docmehr/presentation/screens/punching.dart';
 import 'package:flutter/material.dart';
 import 'package:docmehr/presentation/screens/dashboard.dart';
 import 'package:docmehr/presentation/screens/splash.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.getInstance();
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -44,6 +50,7 @@ class MyApp extends StatelessWidget {
             context.read<UserInfoRepo>(),
           ),
         ),
+        BlocProvider<PunchBloc>(create: (context) => PunchBloc()),
       ],
       child: MaterialApp(
         title: 'Benchmark WFM',
@@ -52,7 +59,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        // home: Profile(),
+        // home: PunchScreen(),
         initialRoute: Splash.routeName,
         routes: {
           Splash.routeName: (ctx) => const Splash(),

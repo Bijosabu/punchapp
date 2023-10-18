@@ -2,11 +2,15 @@
 
 import 'dart:async';
 
+import 'package:docmehr/application/blocs/userData/user_bloc.dart';
 import 'package:docmehr/application/blocs/userData/user_state.dart';
 import 'package:docmehr/application/blocs/userInfo/user_info_bloc.dart';
+import 'package:docmehr/domain/models/userModel.dart';
+
 import 'package:docmehr/presentation/widgets/button_punch_in.dart';
 import 'package:docmehr/presentation/widgets/punch_running.dart';
 import 'package:docmehr/core/enums.dart';
+import 'package:docmehr/sqflite_db/user_db.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +39,10 @@ class _PunchingState extends State<Punching> {
   LatLng? latLng;
   Timer? _timer;
   String? deviceId;
+  User? user;
+  double? lat;
+  double? long;
+  LatLng? latlng;
   getDeviceId() async {
     deviceId = await PlatformDeviceId.getDeviceId;
     // print(deviceIds);
@@ -44,52 +52,53 @@ class _PunchingState extends State<Punching> {
   @override
   void initState() {
     _initialize();
+    // _createMap();
 
     super.initState();
   }
 
   @override
   void dispose() {
-    // _timer!.cancel();
+    _timer!.cancel();
     super.dispose();
   }
 
-  _initialize() {
+  _initialize() async {
     _showLoader();
     // await _createMap();
     _hideLoader();
   }
 
-  Future _createMap() async {
-    Position? position = await _getCurrentPosition();
-    setState(() => latLng = LatLng(position!.latitude, position.longitude));
+  // Future _createMap() async {
+  //   Position? position = await _getCurrentPosition();
+  //   setState(() => latLng = LatLng(position!.latitude, position.longitude));
 
-    GoogleMapController googleMapController = await _locController.future;
+  //   GoogleMapController googleMapController = await _locController.future;
 
-    getJsonFile("assets/darkmode.json").then((String mapStyle) async {
-      await googleMapController.setMapStyle(mapStyle);
-    });
+  //   getJsonFile("assets/darkmode.json").then((String mapStyle) async {
+  //     await googleMapController.setMapStyle(mapStyle);
+  //   });
 
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      _getCurrentPosition().then((newPosition) {
-        setState(() {
-          latLng = LatLng(newPosition!.latitude, newPosition.longitude);
-        });
+  //   _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+  //     _getCurrentPosition().then((newPosition) {
+  //       setState(() {
+  //         latLng = LatLng(newPosition!.latitude, newPosition.longitude);
+  //       });
 
-        googleMapController.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              zoom: 17,
-              target: LatLng(
-                newPosition!.latitude,
-                newPosition.longitude,
-              ),
-            ),
-          ),
-        );
-      });
-    });
-  }
+  //       googleMapController.animateCamera(
+  //         CameraUpdate.newCameraPosition(
+  //           CameraPosition(
+  //             zoom: 17,
+  //             target: LatLng(
+  //               newPosition!.latitude,
+  //               newPosition.longitude,
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     });
+  //   });
+  // }
 
   Future<String> getJsonFile(String path) async {
     return await rootBundle.loadString(path);
@@ -103,73 +112,70 @@ class _PunchingState extends State<Punching> {
     context.loaderOverlay.hide();
   }
 
-  Future<Position?> _getCurrentPosition() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location Permission Denied.');
-      }
-    }
+  // Future<Position?> _getCurrentPosition() async {
+  //   LocationPermission permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       return Future.error('Location Permission Denied.');
+  //     }
+  //   }
 
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Please enable location to continue');
-    }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     return Future.error('Please enable location to continue');
+  //   }
 
-    try {
-      Position position = await Geolocator.getCurrentPosition();
-      return position;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-      return null;
-    }
-  }
+  //   try {
+  //     Position position = await Geolocator.getCurrentPosition();
+  //     return position;
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print(e.toString());
+  //     }
+  //     return null;
+  //   }
+  // }
+  // _getUser() async {
+  //   user = await UserDatabase.instance.readData(1);
+  // }
 
-  bool _hasFetchedUserInfo = false;
+  // final user = UserDatabase.instance.readData(1);
+
+  // bool _hasFetchedUserInfo = false;
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      if (!_hasFetchedUserInfo) {
-        await getDeviceId();
-        // ignore: use_build_context_synchronously
-        BlocProvider.of<UserInfoBloc>(context).add(
-          UserInfoEvent.getUserInfo(
-            userToken: '3884F0E5-FDAA-46CD-9ADD-82BEFCDCBA58',
-            deviceId: deviceId!,
-            OTPNo: '12345',
-          ),
-        );
-        _hasFetchedUserInfo = true;
-      }
+      // await _getUser();
+      // if (!_hasFetchedUserInfo) {
+      //   await getDeviceId();
+      //   // ignore: use_build_context_synchronously
+      //   BlocProvider.of<UserInfoBloc>(context).add(
+      //     UserInfoEvent.getUserInfo(
+      //       userToken: '3884F0E5-FDAA-46CD-9ADD-82BEFCDCBA58',
+      //       deviceId: deviceId!,
+      //       OTPNo: '12345',
+      //     ),
+      //   );
+      //   _hasFetchedUserInfo = true;
+      // }
     });
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
-      // drawer: Drawer(),
       backgroundColor: Colors.black,
       key: _scaffoldKey,
-      body: BlocBuilder<UserInfoBloc, UserInfoState>(
+      body: BlocBuilder<UserBloc, UserState>(
         builder: (context, state) {
-          if (state.isError) {
-            return const Center(
-              child: Text('Error fetching data'),
-            );
-          } else if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state.userInfo != null) {
-            final lat = double.tryParse(state.userInfo!.northLat) ?? 0.0;
-            final long = double.tryParse(state.userInfo!.westLong) ?? 0.0;
-            final latLng = state.userInfo != null
-                ? LatLng(
-                    double.parse(state.userInfo!.northLat),
-                    double.parse(state.userInfo!.westLong),
-                  )
-                : const LatLng(0.0, 0.0);
+          if (state is UserLoaded) {
+            LatLng? latLng;
+            double zoomLevel = 15;
+            if (user != null) {
+              lat = double.tryParse(user!.northLat);
+              long = double.tryParse(user!.westLong);
+              latlng = LatLng(lat!, long!);
+            }
+
             return Stack(
               alignment: Alignment.topLeft,
               children: [
@@ -180,25 +186,21 @@ class _PunchingState extends State<Punching> {
                       width: MediaQuery.of(context).size.width,
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(
-                          target: LatLng(lat, long),
-                          zoom: 15,
+                          target: latlng ?? const LatLng(70.8, 76.9),
+                          zoom: zoomLevel,
                         ),
                         mapType: MapType.normal,
                         markers: <Marker>{
                           Marker(
-                            markerId: const MarkerId(
-                                'your_marker_id'), // Provide a unique ID for the marker
-                            position:
-                                LatLng(lat, long), // Same lat/lng as above
+                            markerId: const MarkerId('your_marker_id'),
+                            position: latlng ?? const LatLng(70.8, 76.9),
                             infoWindow: const InfoWindow(
                               title: 'Location Title',
                               snippet: 'Location Description',
                             ),
                           ),
                         },
-                        onMapCreated: (GoogleMapController controller) {
-                          // You can interact with the map controller here if needed.
-                        },
+                        onMapCreated: (GoogleMapController controller) {},
                       ),
                       // child: GoogleMap(
                       //   zoomGesturesEnabled: true,
@@ -260,7 +262,7 @@ class _PunchingState extends State<Punching> {
             );
           } else {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text('Unable to load data'),
             );
           }
         },
@@ -268,3 +270,117 @@ class _PunchingState extends State<Punching> {
     );
   }
 }
+// BlocBuilder<UserInfoBloc, UserInfoState>(
+//         builder: (context, state) {
+//           if (state.isError) {
+//             return const Center(
+//               child: Text('Error fetching data'),
+//             );
+//           } else if (state.isLoading) {
+//             return const Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           } else if (state.userInfo != null) {
+//             final lat = double.tryParse(state.userInfo!.northLat) ?? 0.0;
+//             final long = double.tryParse(state.userInfo!.westLong) ?? 0.0;
+//             final latLng = state.userInfo != null
+//                 ? LatLng(
+//                     double.parse(state.userInfo!.northLat),
+//                     double.parse(state.userInfo!.westLong),
+//                   )
+//                 : const LatLng(0.0, 0.0);
+//             return Stack(
+//               alignment: Alignment.topLeft,
+//               children: [
+//                 Stack(
+//                   children: [
+//                     Container(
+//                       height: height * 0.5,
+//                       width: MediaQuery.of(context).size.width,
+//                       child: GoogleMap(
+//                         initialCameraPosition: CameraPosition(
+//                           target: LatLng(lat, long),
+//                           zoom: 15,
+//                         ),
+//                         mapType: MapType.normal,
+//                         markers: <Marker>{
+//                           Marker(
+//                             markerId: const MarkerId(
+//                                 'your_marker_id'), // Provide a unique ID for the marker
+//                             position:
+//                                 LatLng(lat, long), // Same lat/lng as above
+//                             infoWindow: const InfoWindow(
+//                               title: 'Location Title',
+//                               snippet: 'Location Description',
+//                             ),
+//                           ),
+//                         },
+//                         onMapCreated: (GoogleMapController controller) {
+//                           // You can interact with the map controller here if needed.
+//                         },
+//                       ),
+//                       // child: GoogleMap(
+//                       //   zoomGesturesEnabled: true,
+//                       //   markers: <Marker>{
+//                       //     Marker(
+//                       //         markerId: const MarkerId("location"),
+//                       //         position: latLng),
+//                       //   },
+//                       //   initialCameraPosition:
+//                       //       CameraPosition(target: latLng, zoom: 17),
+//                       //   // myLocationEnabled: true,
+//                       //   onMapCreated: (GoogleMapController controller) {
+//                       //     _locController.complete(controller);
+//                       //   },
+//                       // ),
+//                     ),
+//                     IconButton(
+//                       icon: const Icon(
+//                         Icons.menu,
+//                         color: Colors.white,
+//                       ),
+//                       onPressed: () {
+//                         widget.zoomDrawerController.toggle!();
+//                       },
+//                     ),
+//                     const Row(
+//                       mainAxisAlignment: MainAxisAlignment.end,
+//                       crossAxisAlignment: CrossAxisAlignment.end,
+//                       children: [
+//                         // IconButton(
+//                         //   icon: const Icon(
+//                         //     Icons.replay_outlined,
+//                         //     color: Colors.red,
+//                         //   ),
+//                         //   onPressed: () => _initialize(),
+//                         // ),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//                 Align(
+//                   alignment: Alignment.bottomCenter,
+//                   child: BlocBuilder<PunchBloc, PunchState>(
+//                     builder: (context, state) {
+//                       if (state is PunchInLoading) {
+//                         return const Center(child: CircularProgressIndicator());
+//                       } else if (state is PunchInStart) {
+//                         return const ButtonPunchIn();
+//                       } else if (state is PunchInRunning) {
+//                         return const PunchRunning();
+//                       } else {
+//                         return const Center(
+//                             child: Text('Punch in not available'));
+//                       }
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             );
+//           } else {
+//             return const Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           }
+//         },
+//       ),

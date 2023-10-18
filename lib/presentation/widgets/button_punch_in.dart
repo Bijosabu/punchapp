@@ -119,9 +119,14 @@ class _ButtonPunchInState extends State<ButtonPunchIn> {
                     if (loc.isNotEmpty && remark.isNotEmpty) {
                       await SharedPrefs()
                           .setPunchState(PunchingState.punchInRunning);
-                      context
-                          .read<PunchBloc>()
+                      // ignore: use_build_context_synchronously
+                      BlocProvider.of<PunchBloc>(context)
                           .add(UserPunchIn(loc: loc, remark: remark));
+                      // await SharedPrefs()
+                      //     .setPunchState(PunchingState.punchInRunning);
+                      // context
+                      //     .read<PunchBloc>()
+                      //     .add(UserPunchIn(loc: loc, remark: remark));
                     }
                   },
                   child: Container(

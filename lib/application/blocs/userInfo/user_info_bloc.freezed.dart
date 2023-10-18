@@ -148,7 +148,7 @@ class __$$GetUserInfoImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$GetUserInfoImpl implements _GetUserInfo {
+class _$GetUserInfoImpl with DiagnosticableTreeMixin implements _GetUserInfo {
   const _$GetUserInfoImpl(
       {required this.userToken, required this.deviceId, required this.OTPNo});
 
@@ -160,8 +160,18 @@ class _$GetUserInfoImpl implements _GetUserInfo {
   final String OTPNo;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UserInfoEvent.getUserInfo(userToken: $userToken, deviceId: $deviceId, OTPNo: $OTPNo)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UserInfoEvent.getUserInfo'))
+      ..add(DiagnosticsProperty('userToken', userToken))
+      ..add(DiagnosticsProperty('deviceId', deviceId))
+      ..add(DiagnosticsProperty('OTPNo', OTPNo));
   }
 
   @override
@@ -362,7 +372,7 @@ class __$$InitialImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$InitialImpl implements _Initial {
+class _$InitialImpl with DiagnosticableTreeMixin implements _Initial {
   const _$InitialImpl(
       {required this.userInfo, required this.isLoading, required this.isError});
 
@@ -374,8 +384,18 @@ class _$InitialImpl implements _Initial {
   final bool isError;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UserInfoState(userInfo: $userInfo, isLoading: $isLoading, isError: $isError)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UserInfoState'))
+      ..add(DiagnosticsProperty('userInfo', userInfo))
+      ..add(DiagnosticsProperty('isLoading', isLoading))
+      ..add(DiagnosticsProperty('isError', isError));
   }
 
   @override

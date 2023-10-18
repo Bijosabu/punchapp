@@ -79,6 +79,7 @@ class _LoginState extends State<Login> {
       print("---------h--------${response.userId}");
       print("---------h--------${response.punchMethod}");
       await UserDatabase.instance.create(response);
+      print('local db created');
     } catch (e) {
       print("----Api calling error------${e.toString()}");
     }

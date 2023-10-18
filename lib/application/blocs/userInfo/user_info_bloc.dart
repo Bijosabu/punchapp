@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
+
 import 'package:docmehr/domain/models/userInfoModel.dart';
 import 'package:docmehr/infrastructure/userInfoRepo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 part 'user_info_event.dart';
