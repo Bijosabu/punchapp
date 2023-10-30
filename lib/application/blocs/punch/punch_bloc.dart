@@ -29,9 +29,9 @@ class PunchBloc extends Bloc<PunchEvent, PunchState> {
 
   void _onUserSetState(UserPunchIn event, Emitter<PunchState> emit) async {
     emit(PunchInLoading());
-    final prefs = SharedPrefs();
+    // final prefs = SharedPrefs();
     try {
-      PunchingState state = await prefs.getPunchState();
+      PunchingState state = await SharedPrefs().getPunchState();
       if (state == PunchingState.punchIn) {
         emit(PunchInStart());
       } else if (state == PunchingState.punchInRunning) {

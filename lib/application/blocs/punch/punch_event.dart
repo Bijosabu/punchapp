@@ -21,6 +21,7 @@ class UserPunchIn extends PunchEvent {
       print("---loc-----$loc");
       print("---remark-----$remark");
       final startTime = DateTime.now();
+      print(startTime);
       await SharedPrefs().setTimer(startTime);
     }
   }

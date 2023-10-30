@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:docmehr/application/blocs/punch/punch_bloc.dart';
+import 'package:docmehr/application/blocs/userData/user_bloc.dart';
 import 'package:docmehr/application/blocs/userInfo/user_info_bloc.dart';
 
 import 'package:docmehr/infrastructure/userInfoRepo.dart';
@@ -7,18 +8,22 @@ import 'package:docmehr/presentation/screens/login.dart';
 import 'package:docmehr/presentation/screens/profile.dart';
 
 import 'package:docmehr/presentation/screens/punching.dart';
+import 'package:docmehr/services/shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:docmehr/presentation/screens/dashboard.dart';
 import 'package:docmehr/presentation/screens/splash.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_it/get_it.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences.getInstance();
+  final sharedPrefs = SharedPrefs();
+  await sharedPrefs.initialize();
+
   HttpOverrides.global = MyHttpOverrides();
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -46,10 +51,10 @@ class MyApp extends StatelessWidget {
           create: (context) => UserInfoRepo(),
         ),
         BlocProvider(
-          create: (context) => UserInfoBloc(
-            context.read<UserInfoRepo>(),
-          ),
-        ),
+            create: (context) => UserInfoBloc(
+                  context.read<UserInfoRepo>(),
+                )),
+        BlocProvider<UserBloc>(create: (context) => UserBloc()),
         BlocProvider<PunchBloc>(create: (context) => PunchBloc()),
       ],
       child: MaterialApp(
